@@ -1,4 +1,6 @@
-import * as React from 'react';
+import {useEffect, useState} from 'react';
+import { useQuery, gql } from '@apollo/client';
+
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -26,6 +28,24 @@ const rows = [
 ];
 
 export default function BasicTable() {
+  const query = gql`
+    query GetItems {
+      items {
+        id
+        name
+      }
+    }
+  `;
+  const { loading, error, data } = useQuery(query);
+
+  if (loading) {
+    return (<p>Loading...</p>);
+  }
+  if (error) {
+    return(<p>Error :(</p>);
+  }
+  console.log(data);
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
