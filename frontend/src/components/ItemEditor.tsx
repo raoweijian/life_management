@@ -60,7 +60,7 @@ export default function ItemEditor({
       amountLogged: $amountLogged,
       consumeSpeed: $consumeSpeed,
       updateType: $updateType,
-      autoCalculate: $autoCalculate, 
+      autoCalculate: $autoCalculate,
       ) {
         item {
           id
@@ -140,19 +140,6 @@ export default function ItemEditor({
                     />
                   </FormGroup>
                 </Grid>
-                {!autoCalculate && (
-                  <Grid item columns={10}>
-                    <TextField
-                      fullWidth
-                      id="outlined-number"
-                      label="消耗速度(每天)"
-                      type="number"
-                      variant="standard"
-                      value={formData.consumeSpeed}
-                      onChange={event => updateField("consumeSpeed", parseFloat(event.target.value))}
-                    />
-                  </Grid>
-                )}
               </>
             ) : (
               <Grid item columns={10}>

@@ -15,5 +15,5 @@ class Item(models.Model):
     def update_speed(self, amount):
         amount_consumed = self.amount_logged - amount
         days_passed = round((timezone.now() - self.amount_logged_at).total_seconds() / (3600 * 24), 2)
-        if days_passed != 0:
+        if amount_consumed > 0 and days_passed != 0:
             self.consume_speed = round(amount_consumed / days_passed, 2)
