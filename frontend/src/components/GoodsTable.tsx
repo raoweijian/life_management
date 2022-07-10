@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import moment from "moment";
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -12,7 +12,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 
-import ItemEditor, {UpdateType} from "@/components/ItemEditor";
+import ItemEditor from "@/components/ItemEditor";
 
 export interface Item {
   id: number;
@@ -48,19 +48,13 @@ export default function BasicTable() {
       }
     }
   `;
-  const { loading, error, data } = useQuery(query);
+  const { loading, error, data, refetch } = useQuery(query);
 
   if (loading) {
     return (<p>Loading...</p>);
   }
   if (error) {
     return(<p>Error :(</p>);
-  }
-  console.log(data);
-
-  const upsertItem = (item: Item, updateType: UpdateType): void => {
-    console.log(item);
-    console.log(updateType);
   }
 
   return (
@@ -110,8 +104,10 @@ export default function BasicTable() {
       <ItemEditor
         open={editing}
         item={itemEditing}
-        onClose={() => {setEditing(false)}}
-        onSubmit={upsertItem}
+        onClose={() => {
+          refetch();
+          setEditing(false);
+        }}
       />
     </>
   );

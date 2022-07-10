@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useMutation, gql } from '@apollo/client';
 
 import Box from '@mui/material/Box';
 import Button from "@mui/material/Button";
@@ -23,12 +24,10 @@ export default function ItemEditor({
   open,
   item,
   onClose,
-  onSubmit,
 }: {
   open: boolean,
   item: Item | null,
   onClose: () => void,
-  onSubmit: (item: Item, updateType: UpdateType) => void,
 }) {
   const NEW_ITEM: Item = {
     id: 0,
@@ -44,7 +43,7 @@ export default function ItemEditor({
   }, [item, open]);
 
   const [updateType, setUpdateType] = useState<UpdateType>("amount");
-  const [autoCalculate, setAutoCalculate] = useState(true);
+  const [autoCalculate, setAutoCalculate] = useState(false);
 
   const updateField = (key: string, value: any) => {
     setFormData({
@@ -52,6 +51,34 @@ export default function ItemEditor({
       [key]: value,
     });
   }
+
+  const mutation = gql`
+    mutation UpsertItem($dbid: Int!, $name: String!, $amountLogged: Int!, $consumeSpeed: Float!, $updateType: String!, $autoCalculate: Boolean!) {
+      upsertItem(
+      dbid: $dbid,
+      name: $name,
+      amountLogged: $amountLogged,
+      consumeSpeed: $consumeSpeed,
+      updateType: $updateType,
+      autoCalculate: $autoCalculate, 
+      ) {
+        item {
+          id
+        }
+      }
+    }
+  `;
+  const [onSubmit, { data, loading, error }] = useMutation(mutation, {
+    variables: {
+      dbid: formData.id,
+      name: formData.name,
+      amountLogged: formData.amountLogged,
+      consumeSpeed: formData.consumeSpeed,
+      updateType,
+      autoCalculate,
+    },
+    onCompleted: onClose,
+  });
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -145,7 +172,17 @@ export default function ItemEditor({
       <Box sx={{marginRight: 3, marginBottom: 2}}>
         <DialogActions>
           <Button onClick={onClose}>取消</Button>
-          <Button variant="contained" onClick={() => {onSubmit(formData, updateType)}}>确认</Button>
+          <Button
+            variant="contained"
+            onClick={() => onSubmit({
+              variables: {
+                ...formData,
+                dbid: formData.id,
+                updateType,
+                autoCalculate,
+              }})
+            }
+          >确认</Button>
         </DialogActions>
       </Box>
     </Dialog>

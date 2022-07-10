@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 graphene-django = "*"
 django-cors-headers = "*"
+pylint = "*"
+pylint-django = "*"
 
 [dev-packages]
 

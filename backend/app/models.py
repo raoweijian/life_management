@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Item(models.Model):
     name = models.CharField(max_length=200)
@@ -10,3 +11,8 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
+    def update_speed(self, amount):
+        amount_consumed = self.amount_logged - amount
+        days_passed = round((timezone.now() - self.amount_logged_at).total_seconds() / (3600 * 24), 2)
+        self.consume_speed = round(amount_consumed / days_passed, 2)
