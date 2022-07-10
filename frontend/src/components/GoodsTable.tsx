@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import moment from "moment";
-import { useQuery, useMutation, gql } from '@apollo/client';
+import { useQuery, gql } from '@apollo/client';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -34,7 +34,7 @@ function calculateRemanent(
   return (amountLogged - amountConsumed).toFixed(2);
 }
 
-export default function BasicTable() {
+export default function GoodsTable() {
   const [editing, setEditing] = useState(false);
   const [itemEditing, setItemEditing] = useState<Item | null>(null);
   const query = gql`
@@ -82,7 +82,7 @@ export default function BasicTable() {
                   {row.name}
                 </TableCell>
                 <TableCell>{row.amountLogged}</TableCell>
-                <TableCell>{moment(row.amountLoggedAt).format("YYYY-MM-DD")}</TableCell>
+                <TableCell>{moment(row.amountLoggedAt).format("lll")}</TableCell>
                 <TableCell>{row.consumeSpeed}</TableCell>
                 <TableCell>{calculateRemanent(row.amountLogged, row.amountLoggedAt, row.consumeSpeed)}</TableCell>
                 <TableCell align="center">
@@ -98,6 +98,19 @@ export default function BasicTable() {
                 </TableCell>
               </TableRow>
             ))}
+            <TableRow>
+              <TableCell component="th" scope="row">
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setItemEditing(null);
+                    setEditing(true);
+                  }}
+                >
+                  添加
+                </Button>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>

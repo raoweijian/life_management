@@ -8,7 +8,9 @@ from app.models import Item
 class ItemType(DjangoObjectType):
     class Meta:
         model = Item
-        fields = ("id", "name", "amount_logged", "amount_logged_at", "consume_speed", "created_at", "updated_at")
+        fields = ("name", "amount_logged", "amount_logged_at", "consume_speed", "created_at", "updated_at")
+
+    id = graphene.Int(source='pk')
 
 
 class Query(graphene.ObjectType):

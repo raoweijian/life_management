@@ -1,4 +1,7 @@
 import React from 'react'
+import moment from "moment";
+import localization from 'moment/dist/locale/zh-cn';
+import { BrowserRouter } from "react-router-dom";
 import ReactDOM from 'react-dom/client'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import App from './App'
@@ -10,14 +13,18 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8000/graphql',
+  uri: '/api/graphql',
   cache: new InMemoryCache(),
 });
+
+moment.updateLocale('zh-cn', localization);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </ApolloProvider>
   </React.StrictMode>
 )

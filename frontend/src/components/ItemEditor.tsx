@@ -68,6 +68,7 @@ export default function ItemEditor({
       }
     }
   `;
+
   const [onSubmit, { data, loading, error }] = useMutation(mutation, {
     variables: {
       dbid: formData.id,
@@ -180,9 +181,11 @@ export default function ItemEditor({
                 dbid: formData.id,
                 updateType,
                 autoCalculate,
-              }})
-            }
-          >确认</Button>
+              }
+            })}
+          >
+            确认
+          </Button>
         </DialogActions>
       </Box>
     </Dialog>
