@@ -1,4 +1,6 @@
-import {useEffect, useState} from 'react';
+import { useState } from "react";
+
+import moment from "moment";
 import { useQuery, gql } from '@apollo/client';
 
 import Table from '@mui/material/Table';
@@ -8,31 +10,41 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
 
-function createData(
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number,
-) {
-  return { name, calories, fat, carbs, protein };
+import ItemEditor, {UpdateType} from "@/components/ItemEditor";
+
+export interface Item {
+  id: number;
+  name: string;
+  amountLogged: number;
+  amountLoggedAt: string;
+  consumeSpeed: number;
 }
 
-const rows = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-];
+function calculateRemanent(
+  amountLogged: number,
+  amountLoggedAt: string,
+  consumeSpeed: number,
+): string {
+  const now = moment();
+  const duration = moment.duration(now.diff(moment(amountLoggedAt)));
+  const hours = duration.asHours();
+  const amountConsumed = consumeSpeed * hours / 24;
+  return (amountLogged - amountConsumed).toFixed(2);
+}
 
 export default function BasicTable() {
+  const [editing, setEditing] = useState(false);
+  const [itemEditing, setItemEditing] = useState<Item | null>(null);
   const query = gql`
     query GetItems {
       items {
         id
         name
+        amountLogged
+        amountLoggedAt
+        consumeSpeed
       }
     }
   `;
@@ -46,35 +58,61 @@ export default function BasicTable() {
   }
   console.log(data);
 
+  const upsertItem = (item: Item, updateType: UpdateType): void => {
+    console.log(item);
+    console.log(updateType);
+  }
+
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>物资名</TableCell>
+              <TableCell>上次记录剩余量</TableCell>
+              <TableCell>上次记录时间</TableCell>
+              <TableCell>消耗速度(每天)</TableCell>
+              <TableCell>预估剩余量</TableCell>
+              <TableCell align="center">操作</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+
+          <TableBody>
+            {data.items.map((row: Item) => (
+              <TableRow
+                key={row.name}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.name}
+                </TableCell>
+                <TableCell>{row.amountLogged}</TableCell>
+                <TableCell>{moment(row.amountLoggedAt).format("YYYY-MM-DD")}</TableCell>
+                <TableCell>{row.consumeSpeed}</TableCell>
+                <TableCell>{calculateRemanent(row.amountLogged, row.amountLoggedAt, row.consumeSpeed)}</TableCell>
+                <TableCell align="center">
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      setItemEditing(row);
+                      setEditing(true);
+                    }}
+                  >
+                    更新
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <ItemEditor
+        open={editing}
+        item={itemEditing}
+        onClose={() => {setEditing(false)}}
+        onSubmit={upsertItem}
+      />
+    </>
   );
 };
